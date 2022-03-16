@@ -1,3 +1,10 @@
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -40,8 +47,32 @@ public class CurrencyConverter {
 //        sendHttpRequest (fromCode, toCode, amount);
     }
 
-    private static void sendHttpRequest(String fromCode, String toCode, double amount) {
+    private static void sendHttpRequest(String fromCode, String toCode, double amount) throws IOException {
         String getURL = "https://api.exchangerate.host/latest?base=" + toCode + "&symbols=" + fromCode;
+        URL url = new URL(getURL);
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setRequestMethod("GET");
+
+        int responseCode = httpURLConnection.getResponseCode();
+
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = br.readLine()) != null) {
+                response.append(inputLine);
+            }
+            br.close();
+
+
+//            need to add JSON library
+            JSONObject jsonObject = new JSONObject(response.toString());
+            Double exchangeRate = jsonObject.getJSONObject("rates").getDouble(fromCode);
+
+
+        }
+
 
     }
 
